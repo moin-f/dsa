@@ -1,0 +1,246 @@
+ass 10 Q:no 1 
+#ifndef STSTACK_H
+#define STSTACK_H
+
+#include <stdio.h>
+
+#define MAX 20 // Maximum size of the stack
+
+typedef struct {
+    int items[MAX];
+    int top;
+} Stack;
+
+// Function to initialize the stack
+void init(Stack* s) {
+    s->top = -1; // Initialize top to -1 to indicate an empty stack
+}
+
+// Function to check if the stack is empty
+int isEmpty(Stack* s) {
+    return s->top == -1; // Return 1 if empty, 0 otherwise
+}
+
+// Function to check if the stack is full
+int isFull(Stack* s) {
+    return s->top == MAX - 1; // Return 1 if full, 0 otherwise
+}
+
+// Function to push an item onto the stack
+void push(Stack* s, int value) {
+    if (isFull(s)) {
+        printf("\nStack is full. Cannot push %d\n", value);
+    } else {
+        s->items[++s->top] = value; // Increment top and add value
+    }
+}
+
+// Function to pop an item from the stack
+int pop(Stack* s) {
+    if (isEmpty(s)) {
+        printf("\nStack is empty. Cannot pop.\n");
+        return -1; // Return a default value for empty stack
+    }
+    return s->items[s->top--]; // Return the top item and decrement top
+}
+
+// Function to peek at the top item of the stack
+int peek(Stack* s) {
+    if (isEmpty(s)) {
+        printf("\nStack is empty. Cannot peek.\n");
+        return -1; // Return a default value for empty stack
+    }
+    return s->items[s->top]; // Return the top item
+}
+
+#endif // STSTACK_H
+#include <stdio.h>
+#include "ststack.h"
+
+int main() {
+    Stack s;
+    int choice, value;
+
+    init(&s); // Initialize the stack
+
+    do {
+        printf("\n1. Push \n2. Pop \n3. Peek \n4. Check if Stack is Empty \n5. Check if Stack is Full \n0. Exit");
+        printf("\nEnter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter value to push: ");
+                scanf("%d", &value);
+                push(&s, value);
+                break;
+            case 2:
+                value = pop(&s);
+                if (value != -1) { // Check if pop was successful
+                    printf("Popped value: %d\n", value);
+                }
+                break;
+            case 3:
+                value = peek(&s);
+                if (value != -1) { // Check if peek was successful
+                    printf("Top value: %d\n", value);
+                }
+                break;
+            case 4:
+                if (isEmpty(&s)) {
+                    printf("Stack is empty.\n");
+                } else {
+                    printf("Stack is not empty.\n");
+                }
+                break;
+            case 5:
+                if (isFull(&s)) {
+                    printf("Stack is full.\n");
+                } else {
+                    printf("Stack is not full.\n");
+                }
+                break;
+            case 0:
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while (choice != 0);
+
+    return 0; // Return success
+}
+
+
+ass10 Q.no 2 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_EMPLOYEES 100
+
+typedef struct {
+    char name[50];
+    int age;
+} Employee;
+
+// Function to read employees from a file
+int readEmployees(const char *filename, Employee employees[]) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        perror("Could not open file");
+        return 0;
+    }
+    
+    int count = 0;
+    while (fscanf(file, "%s %d", employees[count].name, &employees[count].age) != EOF) {
+        count++;
+    }
+    
+    fclose(file);
+    return count;
+}
+
+// Merge Sort Functions
+void merge(Employee employees[], int left, int mid, int right) {
+    int i, j, k;
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    Employee *L = (Employee *)malloc(n1 * sizeof(Employee));
+    Employee *R = (Employee *)malloc(n2 * sizeof(Employee));
+
+    for (i = 0; i < n1; i++)
+        L[i] = employees[left + i];
+    for (j = 0; j < n2; j++)
+        R[j] = employees[mid + 1 + j];
+
+    i = 0; 
+    j = 0; 
+    k = left; 
+
+    while (i < n1 && j < n2) {
+        if (L[i].age <= R[j].age) {
+            employees[k++] = L[i++];
+        } else {
+            employees[k++] = R[j++];
+        }
+    }
+
+    while (i < n1) {
+        employees[k++] = L[i++];
+    }
+
+    while (j < n2) {
+        employees[k++] = R[j++];
+    }
+
+    free(L);
+    free(R);
+}
+
+void mergeSort(Employee employees[], int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+        mergeSort(employees, left, mid);
+        mergeSort(employees, mid + 1, right);
+        merge(employees, left, mid, right);
+    }
+}
+
+// Quick Sort Functions
+int partition(Employee employees[], int low, int high) {
+    int pivot = employees[high].age;
+    int i = (low - 1);
+    for (int j = low; j < high; j++) {
+        if (employees[j].age <= pivot) {
+            i++;
+            Employee temp = employees[i];
+            employees[i] = employees[j];
+            employees[j] = temp;
+        }
+    }
+    Employee temp = employees[i + 1];
+    employees[i + 1] = employees[high];
+    employees[high] = temp;
+    return i + 1;
+}
+
+void quickSort(Employee employees[], int low, int high) {
+    if (low < high) {
+        int pi = partition(employees, low, high);
+        quickSort(employees, low, pi - 1);
+        quickSort(employees, pi + 1, high);
+    }
+}
+
+// Function to write sorted employees to a file
+void writeEmployees(const char *filename, Employee employees[], int count) {
+    FILE *file = fopen(filename, "w");
+    if (!file) {
+        perror("Could not open file");
+        return;
+    }
+
+    for (int i = 0; i < count; i++) {
+        fprintf(file, "%s %d\n", employees[i].name, employees[i].age);
+    }
+
+    fclose(file);
+}
+
+int main() {
+    Employee employees[MAX_EMPLOYEES];
+    int count = readEmployees("employee.txt", employees);
+    
+    // Sort using Merge Sort
+    mergeSort(employees, 0, count - 1);
+    writeEmployees("sortedemponage.txt", employees, count);
+    
+    // Optional: To sort using Quick Sort, uncomment the following lines
+    // quickSort(employees, 0, count - 1);
+    // writeEmployees("sortedemponage.txt", employees, count);
+    
+    printf("Employees sorted by age and written to sortedemponage.txt\n");
+    
+    return 0;
+}

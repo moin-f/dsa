@@ -1,0 +1,188 @@
+ass8 Q.no1
+#ifndef CSTSTACK_H
+#define CSTSTACK_H
+
+#include <stdio.h>
+
+#define MAX 100 // Maximum size of the stack
+
+typedef struct {
+    char items[MAX];
+    int top;
+} Stack;
+
+// Function to initialize the stack
+void init(Stack* s) {
+    s->top = -1; // Set top to -1 to indicate an empty stack
+}
+
+// Function to check if the stack is empty
+int isEmpty(Stack* s) {
+    return s->top == -1; // Return 1 if empty, 0 otherwise
+}
+
+// Function to check if the stack is full
+int isFull(Stack* s) {
+    return s->top == MAX - 1; // Return 1 if full, 0 otherwise
+}
+
+// Function to push an item onto the stack
+void push(Stack* s, char value) {
+    if (isFull(s)) {
+        printf("Stack is full. Cannot push '%c'\n", value);
+    } else {
+        s->items[++s->top] = value; // Increment top and add value
+    }
+}
+
+// Function to pop an item from the stack
+char pop(Stack* s) {
+    if (isEmpty(s)) {
+        printf("Stack is empty. Cannot pop.\n");
+        return '\0'; // Return null character for empty stack
+    }
+    return s->items[s->top--]; // Return the top item and decrement top
+}
+
+// Function to peek at the top item of the stack
+char peek(Stack* s) {
+    if (isEmpty(s)) {
+        printf("Stack is empty. Cannot peek.\n");
+        return '\0'; // Return null character for empty stack
+    }
+    return s->items[s->top]; // Return the top item
+}
+
+#endif // CSTSTACK_H
+#include <stdio.h>
+#include <string.h>
+#include "cststack.h"
+
+// Function to reverse a string using a stack
+void reverseString(const char* str, char* reversed) {
+    Stack s;
+    init(&s); // Initialize the stack
+
+    // Push each character of the string onto the stack
+    for (int i = 0; i < strlen(str); i++) {
+        push(&s, str[i]);
+    }
+
+    // Pop each character from the stack to get the reversed string
+    int index = 0;
+    while (!isEmpty(&s)) {
+        reversed[index++] = pop(&s);
+    }
+    reversed[index] = '\0'; // Null-terminate the reversed string
+}
+
+int main() {
+    char str[100];
+    char reversed[100];
+
+    printf("Enter a string: ");
+    fgets(str, sizeof(str), stdin);
+    str[strcspn(str, "\n")] = 0; // Remove newline character if present
+
+    reverseString(str, reversed);
+    printf("Reversed string: %s\n", reversed);
+
+    return 0;
+}
+
+Q.no 2
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_EMPLOYEES 100
+
+typedef struct {
+    char name[50];
+    int age;
+} Employee;
+
+// Function to read employees from a file
+int readEmployees(const char *filename, Employee employees[]) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        perror("Could not open file");
+        return 0;
+    }
+    
+    int count = 0;
+    while (fscanf(file, "%s %d", employees[count].name, &employees[count].age) != EOF) {
+        count++;
+    }
+    
+    fclose(file);
+    return count;
+}
+
+// Function to perform Insertion Sort
+void insertionSort(Employee employees[], int count) {
+    for (int i = 1; i < count; i++) {
+        Employee key = employees[i];
+        int j = i - 1;
+
+        // Move elements of employees[0..i-1], that are greater than key.name,
+        // to one position ahead of their current position
+        while (j >= 0 && strcmp(employees[j].name, key.name) > 0) {
+            employees[j + 1] = employees[j];
+            j = j - 1;
+        }
+        employees[j + 1] = key;
+    }
+}
+
+// Function to perform Selection Sort
+void selectionSort(Employee employees[], int count) {
+    for (int i = 0; i < count - 1; i++) {
+        int minIndex = i;
+        for (int j = i + 1; j < count; j++) {
+            if (strcmp(employees[j].name, employees[minIndex].name) < 0) {
+                minIndex = j;
+            }
+        }
+        // Swap the found minimum element with the first element
+        if (minIndex != i) {
+            Employee temp = employees[i];
+            employees[i] = employees[minIndex];
+            employees[minIndex] = temp;
+        }
+    }
+}
+
+// Function to write sorted employees to a file
+void writeEmployees(const char *filename, Employee employees[], int count) {
+    FILE *file = fopen(filename, "w");
+    if (!file) {
+        perror("Could not open file");
+        return;
+    }
+
+    for (int i = 0; i < count; i++) {
+        fprintf(file, "%s %d\n", employees[i].name, employees[i].age);
+    }
+
+    fclose(file);
+}
+
+int main() {
+    Employee employees[MAX_EMPLOYEES];
+    int count = readEmployees("employee.txt", employees);
+    
+    // Sort using Insertion Sort
+    insertionSort(employees, count);
+    writeEmployees("sorted_insertion.txt", employees, count);
+    
+    printf("Employees sorted by name using Insertion Sort and written to sorted_insertion.txt\n");
+    
+    // Optionally, sort using Selection Sort
+    selectionSort(employees, count);
+    writeEmployees("sorted_selection.txt", employees, count);
+    
+    printf("Employees sorted by name using Selection Sort and written to sorted_selection.txt\n");
+
+    return 0;
+}

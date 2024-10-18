@@ -1,0 +1,142 @@
+// ass2 Qno 1 
+#include <stdio.h>
+void main(){
+ int a[20],i,n,temp;
+ printf("enter number of elements :");
+ scanf("%d",&n);
+ for(i=0;i<n;i++): // yaha se semicolon ko hatana hai error solve
+ {
+ printf("enter number :");
+ scanf("%d",&a[i]);
+ }
+ printf("/n before sorting :");
+ for(i=0;i<n;i++)
+ {
+ printf("%d\t",a[i]);
+ }
+ printf("/n after sorting :");
+ for(i=0;i<n;i++)
+ {
+ if(a[i]>a[i+1])
+ {
+ temp=a[i];
+ a[i]=a[i+1];
+ a[i+1]=temp;
+ }
+ }
+ for(i=0;i<n;i++)
+ {
+ printf("%d\t",a[i]);
+ }
+}
+
+
+
+Qno 2
+Write a program to reverse the elements of a queue using queue library.
+Implement basic queue operations init, enqueue, dequeue.
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    int data;
+    struct node *next;
+};
+
+struct node *front, *rear;
+
+void init() {
+    front = NULL;
+    rear = NULL;
+}
+
+int isempty() {
+    return front == NULL;
+}
+
+void enqueue(int value) {
+    struct node *newNode = (struct node*)malloc(sizeof(struct node));
+    newNode->data = value;
+    newNode->next = NULL;
+
+    if (isempty()) {
+        front = newNode;
+        rear = newNode;
+    } else {
+        rear->next = newNode;
+        rear = newNode;
+    }
+}
+
+int dequeue() {
+    if (isempty()) {
+        printf("Queue is empty\n");
+        return -1; // Return a default value for empty queue
+    }
+    struct node *temp = front;
+    int value = front->data;
+    front = front->next;
+    free(temp);
+    return value;
+}
+
+int peek() {
+    if (isempty()) {
+        printf("Queue is empty\n");
+        return -1; // Return a default value for empty queue
+    }
+    return front->data;
+}
+
+void reverseQueue() {
+    struct node *prev = NULL, *current = front, *next = NULL;
+    rear = front; // Set rear to the current front
+
+    while (current != NULL) {
+        next = current->next; // Store next node
+        current->next = prev; // Reverse the link
+        prev = current; // Move prev and current one step forward
+        current = next;
+    }
+    front = prev; // Update front to the new first element
+}
+#include <stdio.h>
+#include "queue.h"
+
+int main() {
+    int choice, value;
+    init();
+
+    do {
+        printf("\n1. Enqueue \n2. Dequeue \n3. Peek \n4. Reverse Queue \n0. Exit");
+        printf("\nEnter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter data: ");
+                scanf("%d", &value);
+                enqueue(value);
+                break;
+            case 2:
+                if (isempty())
+                    printf("\nQueue is empty\n");
+                else
+                    printf("Dequeued element = %d\n", dequeue());
+                break;
+            case 3:
+                printf("Front element = %d\n", peek());
+                break;
+            case 4:
+                reverseQueue();
+                printf("Queue reversed.\n");
+                break;
+            case 0:
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while (choice != 0);
+
+    return 0;
+}
